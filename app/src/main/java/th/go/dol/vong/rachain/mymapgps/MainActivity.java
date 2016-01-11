@@ -44,7 +44,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        GPSABoolean=objLacationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        GPSABoolean = objLacationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if (!GPSABoolean) {
+
+            // No GPS
+            networkABoolean = objLacationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            if (!networkABoolean) {
+                // No Net
+
+                Toast.makeText(MainActivity.this, "Stant Alone", Toast.LENGTH_SHORT).show();
+
+            }//if2
+        } // if1
 
 
     }  // onStart
@@ -57,7 +70,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupForRestart() {
-    }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        objLacationManager.removeUpdates(objLocationListener);
+        String strLat = "UnKnow";
+        String strLng = "UnKnow";
+
+        Location networkLocation = requestLocation(LocationManager.NETWORK_PROVIDER, "Internet Not Connected");
+
+        if (networkLocation != null) {
+            strLat = String.format("%.7f", networkLocation.getLatitude());
+            strLng = String.format("%.7f", networkLocation.getLongitude());
+
+        } // if
+
+        Location GPSLocation = requestLocation(LocationManager.GPS_PROVIDER, "GPS false");
+        if (GPSLocation != null) {
+
+            strLat = String.format("%.7f", GPSLocation.getLatitude());
+            strLng = String.format("%.7f", GPSLocation.getLongitude());
+
+
+        } // if
+        showLatTextView.setText(strLat);
+        showLongTextView.setText(strLng);
+
+    } // SetupForRestart
 
     @Override
     protected void onStop() {
@@ -91,16 +138,15 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
             objLacationManager.requestLocationUpdates(strProvider, 1000, 10, objLocationListener);
-            objLocation=objLacationManager.getLastKnownLocation(strProvider);
+            objLocation = objLacationManager.getLastKnownLocation(strProvider);
 
-        }else {
-            Toast.makeText(MainActivity.this,strError,Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(MainActivity.this, strError, Toast.LENGTH_SHORT).show();
 
         }
 
         return objLocation;
     }
-
 
 
     private void bindWidget() {

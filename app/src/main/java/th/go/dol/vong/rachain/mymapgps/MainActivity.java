@@ -1,26 +1,27 @@
 package th.go.dol.vong.rachain.mymapgps;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.textservice.TextInfo;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-     //Explicit
-    private TextView showLatTextView,showLongTextView;
+    //Explicit
+    private TextView showLatTextView, showLongTextView;
     private LocationManager objLacationManager;
     private Criteria objCriteria;
-    private boolean GPSABoolean,networkABoolean;
-
-
-
+    private boolean GPSABoolean, networkABoolean;
 
 
     @Override
@@ -37,16 +38,75 @@ public class MainActivity extends AppCompatActivity {
         openServiceGetLocation();
 
 
-
-
-
-
     }  // Main method
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        GPSABoolean=objLacationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+
+    }  // onStart
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setupForRestart();
+
+    }
+
+    private void setupForRestart() {
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        objLacationManager.removeUpdates(objLocationListener);
+
+    }
+
+    public Location requestLocation(String strProvider, String strError) {
+
+        Location objLocation = null;
+        if (objLacationManager.isProviderEnabled(strProvider)) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return null;
+            }
+            objLacationManager.requestLocationUpdates(strProvider, 1000, 10, objLocationListener);
+            objLocation=objLacationManager.getLastKnownLocation(strProvider);
+
+        }else {
+            Toast.makeText(MainActivity.this,strError,Toast.LENGTH_SHORT).show();
+
+        }
+
+        return objLocation;
+    }
+
+
 
     private void bindWidget() {
 
-        showLatTextView= (TextView) findViewById(R.id.txtShowLat);
-        showLongTextView= (TextView) findViewById(R.id.txtShowLong);
+        showLatTextView = (TextView) findViewById(R.id.txtShowLat);
+        showLongTextView = (TextView) findViewById(R.id.txtShowLong);
 
 
     }
@@ -56,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
     public final LocationListener objLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            showLatTextView.setText(String.format("%.7f",location.getLatitude()));
-            showLongTextView.setText(String.format("%.7f",location.getLongitude()));
+            showLatTextView.setText(String.format("%.7f", location.getLatitude()));
+            showLongTextView.setText(String.format("%.7f", location.getLongitude()));
 
 
         }
@@ -88,16 +148,13 @@ public class MainActivity extends AppCompatActivity {
         objCriteria.setBearingRequired(false);
 
 
-
-
     }  // OpenServiceGetLocation
 
 
-    public void clickMyMap(View view){
+    public void clickMyMap(View view) {
 
-        Intent objIntent = new Intent(MainActivity.this,MapsActivity.class);
-               startActivity(objIntent);
-
+        Intent objIntent = new Intent(MainActivity.this, MapsActivity.class);
+        startActivity(objIntent);
 
 
     }

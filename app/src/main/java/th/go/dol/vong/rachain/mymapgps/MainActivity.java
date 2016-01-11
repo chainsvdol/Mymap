@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Explicit
     private TextView showLatTextView, showLongTextView;
-    private LocationManager objLacationManager;
+    private LocationManager objLocationManager;
     private Criteria objCriteria;
     private boolean GPSABoolean, networkABoolean;
 
@@ -44,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        GPSABoolean = objLacationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        GPSABoolean = objLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         if (!GPSABoolean) {
 
             // No GPS
-            networkABoolean = objLacationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            networkABoolean = objLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (!networkABoolean) {
                 // No Net
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        objLacationManager.removeUpdates(objLocationListener);
+        objLocationManager.removeUpdates(objLocationListener);
         String strLat = "UnKnow";
         String strLng = "UnKnow";
 
@@ -119,14 +119,14 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        objLacationManager.removeUpdates(objLocationListener);
+        objLocationManager.removeUpdates(objLocationListener);
 
     }
 
     public Location requestLocation(String strProvider, String strError) {
 
         Location objLocation = null;
-        if (objLacationManager.isProviderEnabled(strProvider)) {
+        if (objLocationManager.isProviderEnabled(strProvider)) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity {
                 // for ActivityCompat#requestPermissions for more details.
                 return null;
             }
-            objLacationManager.requestLocationUpdates(strProvider, 1000, 10, objLocationListener);
-            objLocation = objLacationManager.getLastKnownLocation(strProvider);
+            objLocationManager.requestLocationUpdates(strProvider, 1000, 10, objLocationListener);
+            objLocation = objLocationManager.getLastKnownLocation(strProvider);
 
         } else {
             Toast.makeText(MainActivity.this, strError, Toast.LENGTH_SHORT).show();
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openServiceGetLocation() {
 
-        objLacationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        objLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         objCriteria = new Criteria();
         objCriteria.setAccuracy(Criteria.ACCURACY_FINE);
         objCriteria.setAltitudeRequired(false);
